@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { useState, useMemo, Fragment } from "react";
+import { ArrowUpDown, ArrowUp, ArrowDown, ChevronRight, ChevronDown } from "lucide-react";
 import styles from "../styles/table.module.css";
 
 export interface Column<T> {
@@ -14,6 +14,7 @@ interface DataTableProps<T> {
   data: T[];
   keyField: string;
   emptyMessage?: string;
+  renderExpanded?: (row: T) => React.ReactNode;
 }
 
 export function DataTable<T extends Record<string, unknown>>({
@@ -21,9 +22,11 @@ export function DataTable<T extends Record<string, unknown>>({
   data,
   keyField,
   emptyMessage = "No data available",
+  renderExpanded,
 }: DataTableProps<T>) {
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
 
   const sorted = useMemo(() => {
     if (!sortKey) return data;
@@ -49,6 +52,7 @@ export function DataTable<T extends Record<string, unknown>>({
       <table className={styles.table}>
         <thead>
           <tr>
+            {renderExpanded && <th className={styles.expandTh} />}
             {columns.map((col) => (
               <th
                 key={col.key}
@@ -79,22 +83,43 @@ export function DataTable<T extends Record<string, unknown>>({
         <tbody>
           {sorted.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className={styles.empty}>
+              <td colSpan={renderExpanded ? columns.length + 1 : columns.length} className={styles.empty}>
                 {emptyMessage}
               </td>
             </tr>
           ) : (
-            sorted.map((row) => (
-              <tr key={String(row[keyField])}>
-                {columns.map((col) => (
-                  <td key={col.key}>
-                    {col.render
-                      ? col.render(row)
-                      : String(row[col.key] ?? "")}
-                  </td>
-                ))}
-              </tr>
-            ))
+            sorted.map((row) => {
+              const rowKey = String(row[keyField]);
+              const isExpanded = expandedKey === rowKey;
+              return (
+                <Fragment key={rowKey}>
+                  <tr>
+                    {renderExpanded && (
+                      <td
+                        className={styles.expandTd}
+                        onClick={() => setExpandedKey(isExpanded ? null : rowKey)}
+                      >
+                        {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                      </td>
+                    )}
+                    {columns.map((col) => (
+                      <td key={col.key}>
+                        {col.render
+                          ? col.render(row)
+                          : String(row[col.key] ?? "")}
+                      </td>
+                    ))}
+                  </tr>
+                  {renderExpanded && isExpanded && (
+                    <tr key={`${rowKey}-expanded`} className={styles.expandedRow}>
+                      <td colSpan={columns.length + 1} className={styles.expandedContent}>
+                        {renderExpanded(row)}
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
+            })
           )}
         </tbody>
       </table>

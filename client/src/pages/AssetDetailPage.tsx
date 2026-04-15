@@ -406,6 +406,31 @@ export function AssetDetailPage() {
               columns={findingCols}
               keyField="id"
               emptyMessage="No code quality findings"
+              renderExpanded={(row) => {
+                const fields: { label: string; value: string }[] = [
+                  { label: "Pattern", value: String(row.patternId ?? "—") },
+                  {
+                    label: "Where",
+                    value: row.whereElementName
+                      ? `${row.whereElementName}${row.whereElementType ? ` (${row.whereElementType})` : ""}`
+                      : "—",
+                  },
+                  { label: "Revision", value: String(row.assetRevision ?? "—") },
+                ];
+                if (row.dismissReason) {
+                  fields.push({ label: "Dismiss reason", value: String(row.dismissReason) });
+                }
+                return (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 40px", fontSize: 13 }}>
+                    {fields.map(({ label, value }) => (
+                      <div key={label}>
+                        <span style={{ color: "var(--color-text-secondary)", marginRight: 4 }}>{label}:</span>
+                        <strong>{value}</strong>
+                      </div>
+                    ))}
+                  </div>
+                );
+              }}
             />
           )}
         </TabSection>
