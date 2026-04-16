@@ -1,6 +1,7 @@
 import { RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useDeployments } from "../hooks/useDeployments";
+import { useUsers } from "../hooks/useUsers";
 import { DataTable, type Column } from "../components/DataTable";
 import { StatusBadge } from "../components/StatusBadge";
 import { LoadingSpinner } from "../components/LoadingSpinner";
@@ -9,6 +10,10 @@ import styles from "../styles/pages.module.css";
 
 export function DeploymentsPage() {
   const { data, isLoading, error, refetch, isFetching } = useDeployments();
+  const { data: users } = useUsers();
+  const userNameByKey = new Map(
+    (users ?? []).map((u) => [u.key, u.name] as const),
+  );
 
   const columns: Column<Record<string, unknown>>[] = [
     {
@@ -58,7 +63,24 @@ export function DeploymentsPage() {
     {
       key: "deployedBy",
       label: "By",
-      render: (row) => String(row.deployedBy ?? "-"),
+      render: (row) => {
+        if (!row.deployedBy) return "-";
+        const id = String(row.deployedBy);
+        const name =
+          id === "00000000-0000-0000-0000-000000000000"
+            ? "system"
+            : userNameByKey.get(id);
+        return (
+          <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+            <span>{name ?? id}</span>
+            {name && (
+              <span style={{ color: "var(--color-text-secondary)", fontSize: "0.85em" }}>
+                {id}
+              </span>
+            )}
+          </div>
+        );
+      },
     },
   ];
 

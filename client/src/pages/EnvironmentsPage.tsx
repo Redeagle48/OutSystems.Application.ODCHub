@@ -3,6 +3,7 @@ import { useEnvironments, useDeployedAssets } from "../hooks/usePortfolio";
 import { DataTable, type Column } from "../components/DataTable";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorAlert } from "../components/ErrorAlert";
+import { Tag } from "../components/Tag";
 import styles from "../styles/pages.module.css";
 
 export function EnvironmentsPage() {
@@ -24,7 +25,11 @@ export function EnvironmentsPage() {
         return deployments?.[0]?.name ? String(deployments[0].name) : String(row.key);
       },
     },
-    { key: "type", label: "Type" },
+    {
+      key: "type",
+      label: "Type",
+      render: (row) => (row.type ? <Tag>{String(row.type)}</Tag> : "-"),
+    },
     {
       key: "environments",
       label: "Deployed To",
@@ -32,12 +37,48 @@ export function EnvironmentsPage() {
       render: (row) => {
         const deployments = row.deployments as Array<Record<string, unknown>> | undefined;
         if (!deployments?.length) return "-";
-        return deployments
-          .map((d) => {
-            const env = environments.find((e) => e.key === d.environmentKey);
-            return env?.name ?? "Unknown";
-          })
-          .join(", ");
+
+        const timestampFields = [
+          "deployedAt",
+          "lastDeploymentDateTime",
+          "finishedDateTime",
+          "createdAt",
+          "updatedAt",
+        ];
+        const getTs = (d: Record<string, unknown>) => {
+          for (const f of timestampFields) {
+            const v = d[f];
+            if (typeof v === "string" || typeof v === "number") {
+              const t = new Date(v).getTime();
+              if (!Number.isNaN(t)) return t;
+            }
+          }
+          return -Infinity;
+        };
+
+        const latestByEnv = new Map<string, Record<string, unknown>>();
+        deployments.forEach((d, i) => {
+          const envKey = String(d.environmentKey ?? "");
+          const current = latestByEnv.get(envKey);
+          if (!current) {
+            latestByEnv.set(envKey, { ...d, __i: i });
+            return;
+          }
+          const a = getTs(d);
+          const b = getTs(current);
+          if (a > b || (a === b && i > (current.__i as number))) {
+            latestByEnv.set(envKey, { ...d, __i: i });
+          }
+        });
+
+        return (
+          <span style={{ display: "inline-flex", flexWrap: "wrap", gap: 6 }}>
+            {Array.from(latestByEnv.values()).map((d, i) => {
+              const env = environments.find((e) => e.key === d.environmentKey);
+              return <Tag key={i}>{env?.name ?? "Unknown"}</Tag>;
+            })}
+          </span>
+        );
       },
     },
   ];

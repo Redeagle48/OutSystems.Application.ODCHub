@@ -1,27 +1,11 @@
 import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Save, Plug } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Save, Plug, Info } from "lucide-react";
 import { apiClient } from "../api/client";
+import { useSettingsStatus } from "../hooks/useSettingsStatus";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorAlert } from "../components/ErrorAlert";
 import styles from "../styles/pages.module.css";
-
-interface SettingsStatus {
-  portalDomain: string;
-  clientId: string;
-  hasSecret: boolean;
-  configured: boolean;
-  connected: boolean;
-  tokenExpiresAt: number | null;
-}
-
-function useSettings() {
-  return useQuery({
-    queryKey: ["settings"],
-    queryFn: () => apiClient<SettingsStatus>("/settings"),
-    staleTime: 10_000,
-  });
-}
 
 function useSaveSettings() {
   const qc = useQueryClient();
@@ -51,7 +35,7 @@ function useTestConnection() {
 }
 
 export function SettingsPage() {
-  const { data, isLoading, error, refetch } = useSettings();
+  const { data, isLoading, error, refetch } = useSettingsStatus();
   const saveSettings = useSaveSettings();
   const testConn = useTestConnection();
 
@@ -78,6 +62,13 @@ export function SettingsPage() {
     ? Math.max(0, Math.round((data.tokenExpiresAt - Date.now()) / 60000))
     : null;
 
+  const expiresAtLabel = data?.tokenExpiresAt
+    ? new Date(data.tokenExpiresAt).toLocaleString(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })
+    : null;
+
   function handleSave(e: React.FormEvent) {
     e.preventDefault();
     saveSettings.mutate({ portalDomain, clientId, clientSecret });
@@ -98,6 +89,37 @@ export function SettingsPage() {
           </p>
         </div>
       </div>
+
+      {data && !data.connected && (
+        <div
+          role="alert"
+          style={{
+            display: "flex",
+            gap: 12,
+            padding: "12px 16px",
+            background: "#eff6ff",
+            border: "1px solid #bfdbfe",
+            borderRadius: 8,
+            color: "#1e40af",
+            fontSize: 14,
+            alignItems: "flex-start",
+          }}
+        >
+          <Info size={18} style={{ flexShrink: 0, marginTop: 2 }} />
+          <div>
+            <div style={{ fontWeight: 600, marginBottom: 2 }}>
+              {data.configured
+                ? "Portal connection unavailable"
+                : "Portal connection required"}
+            </div>
+            <div>
+              {data.configured
+                ? "We couldn't reach your ODC portal with the saved credentials. Verify the values below and use Test Connection to continue."
+                : "The rest of the app is disabled until you configure a valid ODC portal connection. Fill in the credentials below to get started."}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Connection status */}
       <div className={styles.settingsForm}>
@@ -125,15 +147,23 @@ export function SettingsPage() {
               ({data.portalDomain})
             </span>
           )}
-          {expiresIn !== null && expiresIn > 0 && (
+          {data?.connected && expiresIn !== null && expiresIn > 0 && (
             <span
               style={{
                 marginLeft: "auto",
                 fontSize: 13,
                 color: "var(--color-text-secondary)",
+                textAlign: "right",
               }}
+              title={expiresAtLabel ?? undefined}
             >
               Token expires in {Math.floor(expiresIn / 60)}h {expiresIn % 60}m
+              {expiresAtLabel && (
+                <>
+                  <br />
+                  <span style={{ fontSize: 12 }}>on {expiresAtLabel}</span>
+                </>
+              )}
             </span>
           )}
         </div>
