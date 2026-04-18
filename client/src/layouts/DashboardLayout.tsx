@@ -1,5 +1,6 @@
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { Sidebar } from "../components/Sidebar";
+import { TweaksPanel } from "../components/TweaksPanel";
 import { useSettingsStatus } from "../hooks/useSettingsStatus";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import styles from "../styles/dashboard.module.css";
@@ -23,6 +24,7 @@ export function DashboardLayout() {
       <main className={styles.main}>
         <Outlet />
       </main>
+      <TweaksPanel />
     </div>
   );
 }

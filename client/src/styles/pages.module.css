@@ -12,42 +12,45 @@
 }
 
 .headerTitle {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .headerSubtitle {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-text-secondary);
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .toolbar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .searchInput {
   padding: 8px 12px;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
-  font-size: 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
   min-width: 240px;
   outline: none;
-  transition: border-color 0.15s;
+  background: var(--color-surface);
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .searchInput:focus {
-  border-color: var(--color-primary);
+  border-color: var(--color-info);
+  box-shadow: 0 0 0 3px rgba(45, 94, 207, 0.12);
 }
 
 .select {
-  padding: 8px 12px;
+  padding: 7px 10px;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
-  font-size: 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
   background: var(--color-surface);
   outline: none;
 }
@@ -56,12 +59,12 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
+  padding: 7px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
   font-weight: 500;
-  transition: background 0.15s;
+  transition: background 0.12s, border-color 0.12s;
 }
 
 .btnPrimary {
@@ -76,47 +79,53 @@
 .btnSecondary {
   background: var(--color-surface);
   color: var(--color-text);
-  border: 1px solid var(--color-border);
+  border-color: var(--color-border);
 }
 
 .btnSecondary:hover {
-  background: var(--color-bg);
+  background: var(--color-chip);
 }
 
 .cardGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
+  gap: 14px;
 }
 
 .card {
   background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 20px;
-  transition: box-shadow 0.15s;
+  padding: 18px;
+  transition: box-shadow 0.15s, border-color 0.15s;
 }
 
 .card:hover {
   box-shadow: var(--shadow-md);
+  border-color: var(--color-border-soft);
 }
 
 .cardTitle {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .cardMeta {
-  font-size: 13px;
-  color: var(--color-text-secondary);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
   display: flex;
   align-items: center;
   gap: 6px;
+  font-weight: 600;
 }
 
 .settingsForm {
   background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 24px;
@@ -129,25 +138,30 @@
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .formLabel {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--color-text-secondary);
 }
 
 .formInput {
   padding: 8px 12px;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
-  font-size: 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  background: var(--color-surface);
   outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .formInput:focus {
-  border-color: var(--color-primary);
+  border-color: var(--color-info);
+  box-shadow: 0 0 0 3px rgba(45, 94, 207, 0.12);
 }
 
 .statusDot {

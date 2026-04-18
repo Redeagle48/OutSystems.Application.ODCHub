@@ -1,30 +1,41 @@
-const colorMap: Record<string, string> = {
-  success: "#16a34a",
-  completed: "#16a34a",
-  finished: "#16a34a",
-  resolved: "#16a34a",
-  closed: "#16a34a",
-  open: "#2563eb",
-  running: "#2563eb",
-  in_progress: "#2563eb",
-  pending: "#d97706",
-  queued: "#d97706",
-  warning: "#d97706",
-  snoozed: "#d97706",
-  medium: "#d97706",
-  low: "#64748b",
-  dismissed: "#64748b",
-  high: "#ea580c",
-  failed: "#dc2626",
-  error: "#dc2626",
-  finishedwitherrors: "#dc2626",
-  finishedwitherror: "#dc2626",
-  critical: "#dc2626",
+type Tone = "success" | "info" | "warn" | "error" | "muted";
+
+const tonePalette: Record<Tone, { bg: string; ink: string }> = {
+  success: { bg: "#e7f3ec", ink: "#1f7a4c" },
+  info: { bg: "#e5ecfb", ink: "#2d5ecf" },
+  warn: { bg: "#faf0da", ink: "#a06a00" },
+  error: { bg: "#fbe9e6", ink: "#8f1f17" },
+  muted: { bg: "#f1efe9", ink: "#6b7280" },
+};
+
+const toneMap: Record<string, Tone> = {
+  success: "success",
+  completed: "success",
+  finished: "success",
+  resolved: "success",
+  closed: "success",
+  open: "info",
+  running: "info",
+  in_progress: "info",
+  pending: "warn",
+  queued: "warn",
+  warning: "warn",
+  snoozed: "warn",
+  medium: "warn",
+  low: "muted",
+  dismissed: "muted",
+  high: "error",
+  failed: "error",
+  error: "error",
+  finishedwitherrors: "error",
+  finishedwitherror: "error",
+  critical: "error",
 };
 
 export function StatusBadge({ status }: { status: string }) {
   const normalized = status.toLowerCase().replace(/\s+/g, "_");
-  const color = colorMap[normalized] || "#64748b";
+  const tone = toneMap[normalized] ?? "muted";
+  const { bg, ink } = tonePalette[tone];
 
   return (
     <span
@@ -33,11 +44,12 @@ export function StatusBadge({ status }: { status: string }) {
         alignItems: "center",
         gap: 6,
         padding: "2px 10px",
-        borderRadius: 12,
-        fontSize: 12,
+        borderRadius: 999,
+        fontSize: 11.5,
         fontWeight: 600,
-        background: `${color}18`,
-        color,
+        background: bg,
+        color: ink,
+        lineHeight: 1.6,
       }}
     >
       <span
@@ -45,7 +57,7 @@ export function StatusBadge({ status }: { status: string }) {
           width: 6,
           height: 6,
           borderRadius: "50%",
-          background: color,
+          background: ink,
         }}
       />
       {status}
